@@ -415,7 +415,7 @@
       <label class="field-label" for="content">信件內容</label>
       <textarea
         id="content"
-        placeholder="此刻你想說些什麼？寫下來吧。（100–500 字）"
+        placeholder="此刻你想說些什麼？寫下來吧。（10–500 字）"
       ></textarea>
       <p class="char-count"><span id="char-num">0</span> / 500　<span id="char-min-hint" style="color:var(--border)">至少 100 字</span></p>
     </div>
@@ -503,12 +503,12 @@
     const len = contentEl.value.length;
     charNumEl.textContent = len;
     charCount.classList.toggle('warn', len > 500);
-    if (len >= 100) {
+    if (len >= 10) {
       charMinHint.style.color = 'var(--accent)';
       charMinHint.textContent = '✓';
     } else {
       charMinHint.style.color = 'var(--border)';
-      charMinHint.textContent = '至少 100 字';
+      charMinHint.textContent = '至少 10 字';
     }
   });
 
@@ -710,7 +710,7 @@
     const rec = recipientEl.value.trim();
     const con = contentEl.value.trim();
     if (!rec) { showHint('請填寫收件人'); return false; }
-    if (con.length < 100) { showHint(`信件至少需要 100 字（目前 ${con.length} 字）`); return false; }
+    if (con.length < 10) { showHint(`信件至少需要 10 字（目前 ${con.length} 字）`); return false; }
     if (con.length > 500) { showHint('信件不能超過 500 字'); return false; }
     showHint('');
     return true;
@@ -797,7 +797,7 @@
     submitBtn.disabled = false;
     submitBtn.textContent = '封存這段時光 →';
     charMinHint.style.color = 'var(--border)';
-    charMinHint.textContent = '至少 100 字';
+    charMinHint.textContent = '至少 10 字';
 
     resultSection.classList.remove('visible');
     setTimeout(() => {
