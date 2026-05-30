@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>時空膠囊 — 給未來的一封信</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;500;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg:       #FAF9F6;
+      --paper:    #F5F0E8;
+      --text:     #2C3E50;
+      --muted:    #7A6F63;
+      --accent:   #8B7355;
+      --border:   #C8B99A;
+      --light:    #EDE8DF;
+      --danger:   #C0392B;
+    }
+
+    html, body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Noto Serif TC', Georgia, serif;
+      min-height: 100vh;
+    }
+
+    /* ─── Layout ─────────────────────────── */
+    .page {
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 48px 24px 80px;
+    }
+
+    /* ─── Header ─────────────────────────── */
+    .header {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+
+    .header-eyebrow {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-style: italic;
+      font-size: 13px;
+      letter-spacing: 0.2em;
+      color: var(--accent);
+      margin-bottom: 12px;
+      display: block;
+    }
+
+    .header-title {
+      font-family: 'Noto Serif TC', serif;
+      font-size: 26px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      margin-bottom: 10px;
+    }
+
+    .header-sub {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.7;
+      letter-spacing: 0.04em;
+    }
+
+    .header-divider {
+      margin: 20px auto 0;
+      width: 32px;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* ─── Write Section ───────────────────── */
+    #write-section {
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+
+    #write-section.folding {
+      opacity: 0;
+      transform: translateY(-24px);
+      pointer-events: none;
+    }
+
+    /* ─── Field ───────────────────────────── */
+    .field {
+      margin-bottom: 32px;
+    }
+
+    .field-label {
+      display: block;
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+
+    .field input,
+    .field textarea {
+      width: 100%;
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid var(--border);
+      padding: 6px 0 10px;
+      font-family: 'Noto Serif TC', serif;
+      font-size: 15px;
+      color: var(--text);
+      outline: none;
+      resize: none;
+      transition: border-color 0.3s;
+      -webkit-appearance: none;
+    }
+
+    .field input::placeholder,
+    .field textarea::placeholder {
+      color: var(--border);
+      transition: opacity 0.3s;
+    }
+
+    .field input:focus::placeholder,
+    .field textarea:focus::placeholder {
+      opacity: 0;
+    }
+
+    .field input:focus,
+    .field textarea:focus {
+      border-bottom-color: var(--accent);
+    }
+
+    .field textarea {
+      height: 160px;
+      line-height: 1.8;
+    }
+
+    .char-count {
+      text-align: right;
+      font-size: 11px;
+      color: var(--border);
+      margin-top: 6px;
+      transition: color 0.3s;
+    }
+
+    .char-count.warn {
+      color: var(--danger);
+    }
+
+    /* ─── Time Toggle ─────────────────────── */
+    .time-toggle {
+      display: flex;
+      gap: 0;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .time-toggle button {
+      flex: 1;
+      padding: 10px 0;
+      background: transparent;
+      border: none;
+      font-family: 'Noto Serif TC', serif;
+      font-size: 13px;
+      color: var(--muted);
+      cursor: pointer;
+      transition: background 0.25s, color 0.25s;
+      letter-spacing: 0.04em;
+    }
+
+    .time-toggle button.active {
+      background: var(--accent);
+      color: #FAF9F6;
+    }
+
+    /* ─── Submit Button ───────────────────── */
+    .submit-wrap {
+      text-align: center;
+      margin-top: 40px;
+    }
+
+    #submit-btn {
+      background: transparent;
+      border: 1px solid var(--text);
+      color: var(--text);
+      font-family: 'Noto Serif TC', serif;
+      font-size: 14px;
+      letter-spacing: 0.12em;
+      padding: 13px 32px;
+      cursor: pointer;
+      transition: background 0.3s, color 0.3s, opacity 0.3s;
+      border-radius: 2px;
+    }
+
+    #submit-btn:hover {
+      background: var(--text);
+      color: var(--bg);
+    }
+
+    #submit-btn:disabled {
+      opacity: 0.5;
+      cursor: default;
+    }
+
+    /* ─── Validation hint ─────────────────── */
+    .hint {
+      font-size: 12px;
+      color: var(--danger);
+      margin-top: 8px;
+      text-align: center;
+      min-height: 18px;
+    }
+
+    /* ─── Animation Overlay ───────────────── */
+    #seal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: var(--bg);
+      z-index: 10;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    #seal-overlay.show {
+      display: flex;
+    }
+
+    .seal-icon {
+      width: 56px;
+      height: 56px;
+      animation: sealPulse 1s ease-in-out infinite alternate;
+    }
+
+    @keyframes sealPulse {
+      from { transform: scale(1);   opacity: 0.7; }
+      to   { transform: scale(1.1); opacity: 1;   }
+    }
+
+    .seal-text {
+      font-size: 14px;
+      color: var(--muted);
+      letter-spacing: 0.1em;
+    }
+
+    /* ─── Result Section ──────────────────── */
+    #result-section {
+      display: none;
+      opacity: 0;
+      transition: opacity 0.6s ease;
+    }
+
+    #result-section.show {
+      display: block;
+    }
+
+    #result-section.visible {
+      opacity: 1;
+    }
+
+    .result-header {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    .result-title {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: 20px;
+      color: var(--accent);
+      margin-bottom: 6px;
+    }
+
+    .result-sub {
+      font-size: 12px;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+    }
+
+    /* ─── Card Preview ────────────────────── */
+    #card-preview-wrap {
+      width: 100%;
+      border-radius: 4px;
+      overflow: hidden;
+      box-shadow: 0 8px 32px rgba(44,62,80,0.12), 0 2px 8px rgba(44,62,80,0.06);
+      animation: cardFloat 3s ease-in-out infinite alternate;
+    }
+
+    @keyframes cardFloat {
+      from { transform: translateY(0);   }
+      to   { transform: translateY(-5px); }
+    }
+
+    #card-preview-wrap img {
+      width: 100%;
+      display: block;
+    }
+
+    /* ─── Save Hint ───────────────────────── */
+    .save-hint {
+      margin-top: 24px;
+      background: var(--light);
+      border-left: 3px solid var(--accent);
+      padding: 14px 16px;
+      border-radius: 0 4px 4px 0;
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .save-hint strong {
+      color: var(--text);
+    }
+
+    /* ─── Reset Button ────────────────────── */
+    .reset-wrap {
+      text-align: center;
+      margin-top: 32px;
+    }
+
+    #reset-btn {
+      background: transparent;
+      border: none;
+      font-family: 'Noto Serif TC', serif;
+      font-size: 12px;
+      color: var(--muted);
+      cursor: pointer;
+      letter-spacing: 0.08em;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    /* ─── Hidden Capsule Card (for capture) ─ */
+    #capsule-card {
+      position: fixed;
+      left: -9999px;
+      top: 0;
+      width: 375px;
+      background: #F5F0E8;
+      font-family: 'Noto Serif TC', Georgia, serif;
+      padding: 0;
+      overflow: hidden;
+    }
+
+    /* ─── Scrollbar ───────────────────────── */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Header -->
+  <header class="header">
+    <span class="header-eyebrow">Time Capsule</span>
+    <h1 class="header-title">時光膠囊</h1>
+    <p class="header-sub">寫一封信，寄給未來某個時刻的自己。</p>
+    <div class="header-divider"></div>
+  </header>
+
+  <!-- Write Section -->
+  <section id="write-section">
+
+    <div class="field">
+      <label class="field-label" for="recipient">收件人</label>
+      <input
+        type="text"
+        id="recipient"
+        placeholder="寫給誰？（限 20 字）"
+        maxlength="20"
+        autocomplete="off"
+      >
+    </div>
+
+    <div class="field">
+      <label class="field-label">解封時間</label>
+      <div class="time-toggle">
+        <button id="btn-month" class="active" data-months="1">一個月後</button>
+        <button id="btn-year"  data-months="12">一年後</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="field-label" for="content">信件內容</label>
+      <textarea
+        id="content"
+        placeholder="此刻你想說些什麼？寫下來吧。（100–500 字）"
+      ></textarea>
+      <p class="char-count"><span id="char-num">0</span> / 500</p>
+    </div>
+
+    <div class="submit-wrap">
+      <button id="submit-btn">封存這段時光 →</button>
+      <p class="hint" id="hint-msg"></p>
+    </div>
+
+  </section>
+
+  <!-- Seal Overlay -->
+  <div id="seal-overlay">
+    <svg class="seal-icon" viewBox="0 0 56 56" fill="none">
+      <circle cx="28" cy="28" r="26" stroke="#8B7355" stroke-width="1.5"/>
+      <path d="M14 28 L22 36 L42 18" stroke="#8B7355" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <p class="seal-text">正在封裝時光…</p>
+  </div>
+
+  <!-- Result Section -->
+  <section id="result-section">
+    <div class="result-header">
+      <p class="result-title">已封存</p>
+      <p class="result-sub">你的時光膠囊已成形，請長按圖片儲存或截圖留存。</p>
+    </div>
+
+    <div id="card-preview-wrap">
+      <img id="card-img" src="" alt="時光膠囊卡片">
+    </div>
+
+    <div class="save-hint">
+      💡 <strong>時光守護提示：</strong>本專案為純前端版，膠囊不會儲存在任何伺服器。請<strong>長按圖片儲存</strong>或<strong>截圖留存</strong>。在未來打開它，看看走過了多遠的路。
+    </div>
+
+    <div class="reset-wrap">
+      <button id="reset-btn">再寫一封 →</button>
+    </div>
+  </section>
+
+</div>
+
+<!-- Hidden Capsule Card (for html2canvas) -->
+<div id="capsule-card"></div>
+
+<script>
+(function () {
+  /* ── State ── */
+  let selectedMonths = 1;
+
+  /* ── Elements ── */
+  const recipientEl  = document.getElementById('recipient');
+  const contentEl    = document.getElementById('content');
+  const charNumEl    = document.getElementById('char-num');
+  const charCount    = document.querySelector('.char-count');
+  const btnMonth     = document.getElementById('btn-month');
+  const btnYear      = document.getElementById('btn-year');
+  const submitBtn    = document.getElementById('submit-btn');
+  const hintMsg      = document.getElementById('hint-msg');
+  const writeSection = document.getElementById('write-section');
+  const sealOverlay  = document.getElementById('seal-overlay');
+  const resultSection= document.getElementById('result-section');
+  const cardImg      = document.getElementById('card-img');
+  const capsuleCard  = document.getElementById('capsule-card');
+  const resetBtn     = document.getElementById('reset-btn');
+
+  /* ── Time Toggle ── */
+  btnMonth.addEventListener('click', () => setTime(1, btnMonth, btnYear));
+  btnYear .addEventListener('click', () => setTime(12, btnYear,  btnMonth));
+
+  function setTime(months, activeBtn, otherBtn) {
+    selectedMonths = months;
+    activeBtn.classList.add('active');
+    otherBtn.classList.remove('active');
+  }
+
+  /* ── Char Count ── */
+  contentEl.addEventListener('input', () => {
+    const len = contentEl.value.length;
+    charNumEl.textContent = len;
+    charCount.classList.toggle('warn', len > 500);
+  });
+
+  /* ── Date Helpers ── */
+  function today() { return new Date(); }
+
+  function addMonths(date, months) {
+    const d = new Date(date);
+    d.setMonth(d.getMonth() + months);
+    return d;
+  }
+
+  function fmt(date) {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}.${m}.${d}`;
+  }
+
+  function fmtCompact(date) {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}${m}${d}`;
+  }
+
+  /* ── Time Capsule ID ── */
+  function generateId(openDate, recipient, content) {
+    const raw = `${fmtCompact(openDate)}|${recipient}|${content.slice(0, 20)}`;
+    const encoded = btoa(unescape(encodeURIComponent(raw)));
+    const suffix = encoded.replace(/[^A-Z0-9]/gi, '').slice(0, 4).toUpperCase();
+    return `TC-${fmtCompact(openDate)}-${suffix}`;
+  }
+
+  /* ── Build Capsule Card HTML ── */
+  function buildCard(recipient, content, sealDate, openDate, capsuleId) {
+    const labelStyle = `
+      font-family: Georgia, serif;
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #8B7355;
+      display: block;
+      margin-bottom: 4px;
+    `;
+    const valueStyle = `
+      font-family: Georgia, 'Noto Serif TC', serif;
+      font-size: 14px;
+      color: #2C3E50;
+      line-height: 1.6;
+    `;
+
+    const preview = content.length > 180 ? content.slice(0, 180) + '⋯' : content;
+
+    return `
+      <div style="
+        background: #F5F0E8;
+        width: 375px;
+        min-height: 600px;
+        padding: 0;
+        font-family: Georgia, serif;
+        position: relative;
+        overflow: hidden;
+      ">
+        <!-- Top stamp bar -->
+        <div style="
+          background: #2C3E50;
+          height: 6px;
+          width: 100%;
+        "></div>
+
+        <!-- Postmark decoration -->
+        <div style="padding: 28px 32px 0;">
+          <div style="
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+          ">
+            <!-- Wavy lines (left) -->
+            <div>
+              <svg width="60" height="20" viewBox="0 0 60 20" fill="none">
+                <path d="M0 5 Q7.5 0 15 5 Q22.5 10 30 5 Q37.5 0 45 5 Q52.5 10 60 5"
+                      stroke="#C8B99A" stroke-width="1.2" fill="none"/>
+                <path d="M0 11 Q7.5 6 15 11 Q22.5 16 30 11 Q37.5 6 45 11 Q52.5 16 60 11"
+                      stroke="#C8B99A" stroke-width="1.2" fill="none"/>
+                <path d="M0 17 Q7.5 12 15 17 Q22.5 22 30 17 Q37.5 12 45 17 Q52.5 22 60 17"
+                      stroke="#C8B99A" stroke-width="1.2" fill="none"/>
+              </svg>
+            </div>
+            <!-- Title (center-ish) -->
+            <div style="text-align:center;">
+              <div style="
+                font-family: Georgia, serif;
+                font-style: italic;
+                font-size: 11px;
+                letter-spacing: 0.22em;
+                color: #8B7355;
+              ">Time Capsule</div>
+              <div style="
+                font-size: 18px;
+                color: #2C3E50;
+                letter-spacing: 0.1em;
+                font-weight: bold;
+                margin-top: 2px;
+              ">時光膠囊</div>
+            </div>
+            <!-- Hourglass stamp (right) -->
+            <div>
+              <svg width="36" height="44" viewBox="0 0 36 44" fill="none">
+                <rect x="4" y="2" width="28" height="4" rx="2" fill="#C8B99A"/>
+                <rect x="4" y="38" width="28" height="4" rx="2" fill="#C8B99A"/>
+                <path d="M6 6 L18 22 L30 6" stroke="#C8B99A" stroke-width="1.5" fill="none"/>
+                <path d="M6 38 L18 22 L30 38" stroke="#C8B99A" stroke-width="1.5" fill="none"/>
+                <circle cx="18" cy="22" r="3" fill="#8B7355"/>
+              </svg>
+            </div>
+          </div>
+
+          <!-- Divider -->
+          <div style="border-top: 1px solid #C8B99A; margin-bottom: 22px;"></div>
+
+          <!-- To field -->
+          <div style="margin-bottom: 20px;">
+            <span style="${labelStyle}">To</span>
+            <span style="${valueStyle}; font-size:17px;">${escHtml(recipient)}</span>
+          </div>
+
+          <!-- Letter content -->
+          <div style="
+            background: rgba(255,255,255,0.4);
+            border-left: 2px solid #C8B99A;
+            padding: 14px 16px;
+            margin-bottom: 22px;
+            border-radius: 0 4px 4px 0;
+          ">
+            <p style="
+              font-family: Georgia, serif;
+              font-size: 13px;
+              color: #3D3530;
+              line-height: 1.85;
+              white-space: pre-wrap;
+              word-break: break-all;
+            ">${escHtml(preview)}</p>
+          </div>
+
+          <!-- Divider -->
+          <div style="border-top: 1px dashed #C8B99A; margin-bottom: 18px;"></div>
+
+          <!-- Dates -->
+          <div style="display:flex; justify-content:space-between; margin-bottom:24px;">
+            <div>
+              <span style="${labelStyle}">封存日</span>
+              <span style="${valueStyle}">${fmt(sealDate)}</span>
+            </div>
+            <div style="text-align:right;">
+              <span style="${labelStyle}">解封日</span>
+              <span style="${valueStyle}">${fmt(openDate)}</span>
+            </div>
+          </div>
+
+          <!-- Bottom divider -->
+          <div style="border-top: 1px solid #C8B99A; margin-bottom: 16px;"></div>
+
+          <!-- Capsule ID -->
+          <div style="text-align:center; padding-bottom: 28px;">
+            <span style="
+              font-family: 'Courier New', monospace;
+              font-size: 13px;
+              color: #8B7355;
+              letter-spacing: 0.15em;
+            ">${escHtml(capsuleId)}</span>
+          </div>
+        </div>
+
+        <!-- Bottom bar -->
+        <div style="
+          background: #2C3E50;
+          height: 4px;
+          width: 100%;
+          position: absolute;
+          bottom: 0;
+          left: 0;
+        "></div>
+      </div>
+    `;
+  }
+
+  function escHtml(str) {
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  /* ── Validation ── */
+  function validate() {
+    const rec = recipientEl.value.trim();
+    const con = contentEl.value.trim();
+    if (!rec) { showHint('請填寫收件人'); return false; }
+    if (con.length < 100) { showHint(`信件至少需要 100 字（目前 ${con.length} 字）`); return false; }
+    if (con.length > 500) { showHint('信件不能超過 500 字'); return false; }
+    showHint('');
+    return true;
+  }
+
+  function showHint(msg) { hintMsg.textContent = msg; }
+
+  /* ── Submit ── */
+  submitBtn.addEventListener('click', async () => {
+    if (!validate()) return;
+
+    const recipient = recipientEl.value.trim();
+    const content   = contentEl.value.trim();
+    const sealDate  = today();
+    const openDate  = addMonths(sealDate, selectedMonths);
+    const capsuleId = generateId(openDate, recipient, content);
+
+    /* 1. Fold form */
+    writeSection.classList.add('folding');
+
+    /* 2. Show overlay after short delay */
+    await sleep(300);
+    sealOverlay.classList.add('show');
+
+    /* 3. Build hidden card & capture */
+    capsuleCard.innerHTML = buildCard(recipient, content, sealDate, openDate, capsuleId);
+
+    await sleep(600); /* let fonts paint */
+
+    try {
+      const canvas = await html2canvas(capsuleCard.firstElementChild, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#F5F0E8',
+        logging: false,
+      });
+      const dataUrl = canvas.toDataURL('image/png');
+      cardImg.src = dataUrl;
+    } catch (e) {
+      /* fallback: show card directly */
+      cardImg.style.display = 'none';
+      document.getElementById('card-preview-wrap').appendChild(
+        capsuleCard.firstElementChild.cloneNode(true)
+      );
+    }
+
+    /* 4. Hide overlay, show result */
+    await sleep(400);
+    sealOverlay.classList.remove('show');
+
+    writeSection.style.display = 'none';
+    resultSection.classList.add('show');
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        resultSection.classList.add('visible');
+      });
+    });
+  });
+
+  /* ── Reset ── */
+  resetBtn.addEventListener('click', () => {
+    recipientEl.value = '';
+    contentEl.value = '';
+    charNumEl.textContent = '0';
+    charCount.classList.remove('warn');
+    showHint('');
+    selectedMonths = 1;
+    btnMonth.classList.add('active');
+    btnYear.classList.remove('active');
+    cardImg.src = '';
+    capsuleCard.innerHTML = '';
+
+    resultSection.classList.remove('visible');
+    setTimeout(() => {
+      resultSection.classList.remove('show');
+      resultSection.style.display = '';
+      writeSection.style.display = '';
+      writeSection.classList.remove('folding');
+      writeSection.style.opacity = '';
+      writeSection.style.transform = '';
+    }, 400);
+  });
+
+  /* ── Util ── */
+  function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+})();
+</script>
+</body>
+</html>
+```
