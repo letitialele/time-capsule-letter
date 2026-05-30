@@ -321,10 +321,31 @@
       color: var(--text);
     }
 
+    /* ─── Download Button ───────────────────── */
+    .download-wrap {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    #download-btn {
+      background: var(--accent);
+      border: none;
+      color: #FAF9F6;
+      font-family: 'Noto Serif TC', serif;
+      font-size: 13px;
+      letter-spacing: 0.1em;
+      padding: 12px 28px;
+      cursor: pointer;
+      border-radius: 2px;
+      transition: opacity 0.2s;
+    }
+
+    #download-btn:hover { opacity: 0.85; }
+
     /* ─── Reset Button ────────────────────── */
     .reset-wrap {
       text-align: center;
-      margin-top: 32px;
+      margin-top: 24px;
     }
 
     #reset-btn {
@@ -396,7 +417,7 @@
         id="content"
         placeholder="此刻你想說些什麼？寫下來吧。（100–500 字）"
       ></textarea>
-      <p class="char-count"><span id="char-num">0</span> / 500</p>
+      <p class="char-count"><span id="char-num">0</span> / 500　<span id="char-min-hint" style="color:var(--border)">至少 100 字</span></p>
     </div>
 
     <div class="submit-wrap">
@@ -424,6 +445,10 @@
 
     <div id="card-preview-wrap">
       <img id="card-img" src="" alt="時光膠囊卡片">
+    </div>
+
+    <div class="download-wrap">
+      <button id="download-btn">↓ 儲存圖片</button>
     </div>
 
     <div class="save-hint">
@@ -460,6 +485,8 @@
   const cardImg      = document.getElementById('card-img');
   const capsuleCard  = document.getElementById('capsule-card');
   const resetBtn     = document.getElementById('reset-btn');
+  const downloadBtn  = document.getElementById('download-btn');
+  const charMinHint  = document.getElementById('char-min-hint');
 
   /* ── Time Toggle ── */
   btnMonth.addEventListener('click', () => setTime(1, btnMonth, btnYear));
@@ -476,6 +503,13 @@
     const len = contentEl.value.length;
     charNumEl.textContent = len;
     charCount.classList.toggle('warn', len > 500);
+    if (len >= 100) {
+      charMinHint.style.color = 'var(--accent)';
+      charMinHint.textContent = '✓';
+    } else {
+      charMinHint.style.color = 'var(--border)';
+      charMinHint.textContent = '至少 100 字';
+    }
   });
 
   /* ── Date Helpers ── */
@@ -694,7 +728,9 @@
     const openDate  = addMonths(sealDate, selectedMonths);
     const capsuleId = generateId(openDate, recipient, content);
 
-    /* 1. Fold form */
+    /* 1. Button text → sealing state, then fold form */
+    submitBtn.disabled = true;
+    submitBtn.textContent = '正在封裝時光…';
     writeSection.classList.add('folding');
 
     /* 2. Show overlay after short delay */
@@ -736,6 +772,16 @@
     });
   });
 
+  /* ── Download ── */
+  downloadBtn.addEventListener('click', () => {
+    const url = cardImg.src;
+    if (!url) return;
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `時光膠囊-${Date.now()}.png`;
+    a.click();
+  });
+
   /* ── Reset ── */
   resetBtn.addEventListener('click', () => {
     recipientEl.value = '';
@@ -748,6 +794,10 @@
     btnYear.classList.remove('active');
     cardImg.src = '';
     capsuleCard.innerHTML = '';
+    submitBtn.disabled = false;
+    submitBtn.textContent = '封存這段時光 →';
+    charMinHint.style.color = 'var(--border)';
+    charMinHint.textContent = '至少 100 字';
 
     resultSection.classList.remove('visible');
     setTimeout(() => {
